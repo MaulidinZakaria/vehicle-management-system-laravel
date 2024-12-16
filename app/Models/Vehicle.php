@@ -19,4 +19,25 @@ class Vehicle extends Model
         'status',
         'year',
     ];
+
+    public function rentalCompany()
+    {
+        return $this->belongsTo(RentalCompany::class);
+    }
+
+    public function fuelConsumption()
+    {
+        return $this->hasMany(FuelConsumption::class);
+    }
+
+    public function vehicleMaintenance()
+    {
+        return $this->hasMany(VehicleMaintenance::class);
+    }
+
+    public function bookingVehicles()
+    {
+        return $this->hasMany(BookingVehicle::class);
+    }
+    
 }

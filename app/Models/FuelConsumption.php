@@ -14,4 +14,9 @@ class FuelConsumption extends Model
         'fuel_volume',
         'distance',
     ];
+
+    public function vehicle()
+    {
+        return $this->belongsTo(Vehicle::class);
+    }
 }

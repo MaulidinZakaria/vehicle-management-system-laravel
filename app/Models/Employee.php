@@ -16,6 +16,11 @@ class Employee extends Model
         'address',
         'office_type',
         'role',
-        'user_id'
+        'is_approver'
     ];
+
+    public function bookingVehicle()
+    {
+        return $this->hasMany(BookingVehicle::class);
+    }
 }

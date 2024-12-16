@@ -18,6 +18,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
 {
@@ -28,11 +29,6 @@ class UserResource extends Resource
     protected static ?string $slug = 'pengguna';
     protected static ?string $label = 'Pengguna';
     protected static ?int $navigationSort = 7;
-
-    public static function shouldRegisterNavigation(): bool
-    {
-        return Auth::user()?->level === 'admin';
-    }
 
     public static function form(Form $form): Form
     {
@@ -51,9 +47,21 @@ class UserResource extends Resource
                     ->placeholder('Masukkan Email'),
                 TextInput::make('password')
                     ->label('Password')
-                    ->required()
                     ->password()
-                    ->placeholder('Masukkan Password'),
+                    ->placeholder(fn($context) => $context === 'view' ? '********' : 'Masukkan Password')
+                    ->afterStateHydrated(function ($component, $state) {
+                        $component->state('');
+                    })
+                    ->dehydrateStateUsing(fn($state) => Hash::make($state))
+                    ->dehydrated(fn($state) => filled($state))
+                    ->required(fn(string $context): bool => $context === 'create')
+                    ->helperText(function ($state, $context) {
+                        // Show a helper text if in 'edit' context and no password is provided
+                        if ($context === 'edit' && empty($state)) {
+                            return 'Kosongi jika tidak mengubah password';
+                        }
+                        return '';
+                    }),
                 Select::make('position')
                     ->label('Posisi')
                     ->required()
@@ -70,7 +78,7 @@ class UserResource extends Resource
                         $level = match ($state) {
                             'Admin' => 'admin',
                             'Supervisor' => 'approver_level_1',
-                            'Team Leader' => 'approver_level_2',
+                            'Team Leader' => 'approver_level_1',
                             'Manager' => 'approver_level_2',
                             'Direktur' => 'approver_level_2',
                             default => null,
@@ -97,28 +105,29 @@ class UserResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('name')
                     ->searchable()
-                    ->label('Name'),
+                    ->label('Nama'),
                 TextColumn::make('email')
                     ->searchable()
                     ->label('Email'),
                 TextColumn::make('position')
                     ->searchable()
-                    ->label('Position'),
+                    ->label('Jabatan'),
                 TextColumn::make('level')
                     ->searchable()
                     ->label('Level')
                     ->sortable(),
                 TextColumn::make('office_type')
                     ->searchable()
-                    ->label('Office Type')
+                    ->label('Perusahaan')
                     ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('position')
-                    ->label('Position')
+                    ->label('Jabatan')
                     ->options([
                         'Admin' => 'Admin',
                         'Supervisor' => 'Supervisor',
@@ -126,8 +135,22 @@ class UserResource extends Resource
                         'Manager' => 'Manager',
                         'Direktur' => 'Direktur',
                     ]),
+                SelectFilter::make('level')
+                    ->label('Level')
+                    ->options([
+                        'admin' => 'Admin',
+                        'approver_level_1' => 'Approver Level 1',
+                        'approver_level_2' => 'Approver Level 2',
+                    ]),
+                SelectFilter::make('office_type')
+                    ->label('Perusahaan')
+                    ->options([
+                        'pusat' => 'Pusat',
+                        'cabang' => 'Cabang',
+                    ]),
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
@@ -149,8 +172,6 @@ class UserResource extends Resource
     {
         return [
             'index' => Pages\ListUsers::route('/'),
-            'create' => Pages\CreateUser::route('/create'),
-            'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
     }
 }

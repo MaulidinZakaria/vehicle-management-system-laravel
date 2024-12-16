@@ -16,4 +16,9 @@ class VehicleMaintenance extends Model
         'place',
         'mileage',
     ];
+
+    public function vehicle()
+    {
+        return $this->belongsTo(Vehicle::class);
+    }
 }

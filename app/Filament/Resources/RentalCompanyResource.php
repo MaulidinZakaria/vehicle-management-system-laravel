@@ -6,6 +6,7 @@ use App\Filament\Resources\RentalCompanyResource\Pages;
 use App\Filament\Resources\RentalCompanyResource\RelationManagers;
 use App\Models\RentalCompany;
 use Filament\Forms;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -26,65 +27,83 @@ class RentalCompanyResource extends Resource
     protected static ?string $label = 'Perusahaan Rental';
     protected static ?int $navigationSort = 6;
 
-    public static function shouldRegisterNavigation(): bool
-    {
-        return Auth::user()?->level === 'admin';
-    }
-
     public static function form(Form $form): Form
     {
         return $form
+            ->columns([
+                'sm' => 4,
+                'md' => 8,
+                'lg' => 8,
+                'xl' => 12,
+            ])
             ->schema([
                 TextInput::make('name')
-                    ->label('Name')
+                    ->label('Nama Perusahaan')
                     ->required()
+                    ->columnSpan([
+                        'sm' => 4,
+                        'md' => 8,
+                        'xl' => 12,
+                    ])
                     ->maxLength(100)
-                    ->placeholder('Enter the name of the rental company'),
+                    ->placeholder('Masukkan Nama Perusahaan Rental'),
                 TextInput::make('email')
                     ->label('Email')
                     ->required()
                     ->email()
+                    ->columnSpan([
+                        'sm' => 4,
+                        'md' => 4,
+                        'xl' => 6,
+                    ])
                     ->maxLength(100)
-                    ->placeholder('Enter the email of the rental company'),
+                    ->placeholder('Masukkan Email'),
                 TextInput::make('phone')
-                    ->label('Phone')
+                    ->label('Telepon')
                     ->required()
+                    ->columnSpan([
+                        'sm' => 4,
+                        'md' => 4,
+                        'xl' => 6,
+                    ])
                     ->maxLength(20)
-                    ->placeholder('Enter the phone of the rental company'),
-                TextInput::make('address')
-                    ->label('Address')
+                    ->placeholder('Masukkan Nomor Telepon'),
+                Textarea::make('address')
+                    ->label('Alamat')
                     ->required()
+                    ->columnSpan([
+                        'sm' => 4,
+                        'md' => 8,
+                        'xl' => 12,
+                    ])
                     ->maxLength(255)
-                    ->placeholder('Enter the address of the rental company'),
+                    ->placeholder('Masukkan Alamat Perusahaan'),
             ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('name')
                     ->searchable()
-                    ->label('Name')
-                    ->sortable(),
+                    ->label('Name'),
                 TextColumn::make('email')
                     ->searchable()
-                    ->label('Email')
-                    ->sortable(),
+                    ->label('Email'),
                 TextColumn::make('phone')
                     ->searchable()
-                    ->label('Phone')
-                    ->sortable(),
+                    ->label('Phone'),
                 TextColumn::make('address')
                     ->searchable()
                     ->label('Address')
-                    ->sortable(),
-            ])
-            ->filters([
-                //
+                    ->limit(50),
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -104,8 +123,6 @@ class RentalCompanyResource extends Resource
     {
         return [
             'index' => Pages\ListRentalCompanies::route('/'),
-            'create' => Pages\CreateRentalCompany::route('/create'),
-            'edit' => Pages\EditRentalCompany::route('/{record}/edit'),
         ];
     }
 }

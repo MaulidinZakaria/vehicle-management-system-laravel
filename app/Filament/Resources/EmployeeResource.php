@@ -6,7 +6,10 @@ use App\Filament\Resources\EmployeeResource\Pages;
 use App\Filament\Resources\EmployeeResource\RelationManagers;
 use App\Models\Employee;
 use Filament\Forms;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -27,22 +30,92 @@ class EmployeeResource extends Resource
     protected static ?string $label = 'Pegawai';
     protected static ?int $navigationSort = 8;
 
-    public static function shouldRegisterNavigation(): bool
-    {
-        return Auth::user()?->level === 'admin';
-    }
-
     public static function form(Form $form): Form
     {
         return $form
+            ->columns([
+                'sm' => 4,
+                'md' => 8,
+                'lg' => 8,
+                'xl' => 12,
+            ])
             ->schema([
-                //
+                TextInput::make('name')
+                    ->label('Nama')
+                    ->columnSpan([
+                        'sm' => 4,
+                        'md' => 8,
+                        'xl' => 12,
+                    ])
+                    ->placeholder('Masukkan Nama')
+                    ->required(),
+                TextInput::make('email')
+                    ->label('Email')
+                    ->email()
+                    ->columnSpan([
+                        'sm' => 4,
+                        'md' => 4,
+                        'xl' => 6,
+                    ])
+                    ->placeholder('Masukkan Email')
+                    ->required(),
+                TextInput::make('phone')
+                    ->label('Telepon')
+                    ->placeholder('Masukkan No Telepon')
+                    ->tel()
+                    ->columnSpan([
+                        'sm' => 4,
+                        'md' => 4,
+                        'xl' => 6,
+                    ])
+                    ->required(),
+                Select::make('office_type')
+                    ->label('Perusahaan')
+                    ->required()
+                    ->columnSpan([
+                        'sm' => 4,
+                        'md' => 4,
+                        'xl' => 6,
+                    ])
+                    ->options([
+                        'pusat' => 'Pusat',
+                        'cabang' => 'Cabang',
+                    ]),
+                Select::make('role')
+                    ->label('Status')
+                    ->required()
+                    ->columnSpan([
+                        'sm' => 4,
+                        'md' => 4,
+                        'xl' => 6,
+                    ])
+                    ->options([
+                        'staff' => 'Staff',
+                        'staff & driver' => 'Staff & Driver',
+                    ]),
+                Textarea::make('address')
+                    ->label('Alamat')
+                    ->placeholder('Masukkan Alamat')
+                    ->columnSpan([
+                        'sm' => 4,
+                        'md' => 8,
+                        'xl' => 12,
+                    ])
+                    ->required(),
+                Checkbox::make('is_approver')
+                    ->label('Verifikator')
+                    ->columnSpan([
+                        'sm' => 4,
+                        'md' => 4,
+                        'xl' => 6,
+                    ]),
             ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('name')
                     ->searchable()
@@ -65,7 +138,6 @@ class EmployeeResource extends Resource
                         'staff & driver' => 'info',
                         default => 'info',
                     }),
-
             ])
             ->filters([
                 SelectFilter::make('office_type')
@@ -82,6 +154,7 @@ class EmployeeResource extends Resource
                     ]),
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
@@ -91,6 +164,7 @@ class EmployeeResource extends Resource
                 ]),
             ]);
     }
+
 
     public static function getRelations(): array
     {
@@ -103,8 +177,6 @@ class EmployeeResource extends Resource
     {
         return [
             'index' => Pages\ListEmployees::route('/'),
-            'create' => Pages\CreateEmployee::route('/create'),
-            'edit' => Pages\EditEmployee::route('/{record}/edit'),
         ];
     }
 }
