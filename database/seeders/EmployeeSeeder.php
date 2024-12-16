@@ -26,9 +26,9 @@ class EmployeeSeeder extends Seeder
                 'email' => $faker->unique()->safeEmail,
                 'phone' => $faker->phoneNumber,
                 'address' => $faker->address,
-                'office_type' => $officeTypes[$i % count($officeTypes)],  // Membagi rata office_type
-                'role' => $roles[$i % count($roles)],  // Membagi rata role
-                'user_id' => null,  // user_id null
+                'office_type' => $officeTypes[$i % count($officeTypes)],
+                'role' => $roles[$i % count($roles)],
+                'is_approver' => false,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

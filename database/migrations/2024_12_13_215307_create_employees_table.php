@@ -19,7 +19,7 @@ return new class extends Migration
             $table->text('address');
             $table->enum('office_type', ['pusat', 'cabang']);
             $table->enum('role', ['staff', 'staff & driver']);
-            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
+            $table->boolean('is_approver')->default(false);
             $table->timestamps();
         });
     }

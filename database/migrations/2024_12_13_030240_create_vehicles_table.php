@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('model', 50);
             $table->integer('year');
             $table->enum('fuel_type', ['gasoline', 'diesel', 'electric', 'hybrid']);
-            $table->enum('status', ['available', 'in use', 'maintenance']);
+            $table->enum('status', ['available', 'maintenance']);
             $table->timestamps();
         });
     }
