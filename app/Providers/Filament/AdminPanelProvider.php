@@ -29,6 +29,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
@@ -79,17 +80,28 @@ class AdminPanelProvider extends PanelProvider
                         ...BookingVehicleResource::getNavigationItems(),
                         ...ApprovalResource::getNavigationItems(),
                     ]),
-                    NavigationGroup::make('Kelola Kendaraan')->items([
-                        ...VehicleResource::getNavigationItems(),
-                        ...FuelConsumptionResource::getNavigationItems(),
-                        ...VehicleMaintenanceResource::getNavigationItems(),
-                        ...RentalCompanyResource::getNavigationItems(),
-                    ]),
-                    NavigationGroup::make('Kelola Pengguna')
-                        ->items([
-                            ...UserResource::getNavigationItems(),
-                            ...EmployeeResource::getNavigationItems(),
-                        ]),
+                    ...(
+                        Auth::user()?->level === 'admin'
+                        ? [
+                            NavigationGroup::make('Kelola Kendaraan')->items([
+                                ...VehicleResource::getNavigationItems(),
+                                ...FuelConsumptionResource::getNavigationItems(),
+                                ...VehicleMaintenanceResource::getNavigationItems(),
+                                ...RentalCompanyResource::getNavigationItems(),
+                            ])
+                        ]
+                        : []
+                    ),
+                    ...(
+                        Auth::user()?->level === 'admin'
+                        ? [
+                            NavigationGroup::make('Kelola Pengguna')->items([
+                                ...UserResource::getNavigationItems(),
+                                ...EmployeeResource::getNavigationItems(),
+                            ])
+                        ]
+                        : []
+                    ),
                     NavigationGroup::make('Log Aktivitas')->items([
                         ...LogResource::getNavigationItems(),
                     ]),
