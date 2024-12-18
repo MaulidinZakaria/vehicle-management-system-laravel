@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Vehicle extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
     protected $fillable = [
         'rental_company_id',
         'owner_type',
@@ -40,4 +42,9 @@ class Vehicle extends Model
         return $this->hasMany(BookingVehicle::class);
     }
     
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['rental_company_id', 'owner_type', 'vehicle_type', 'license_plate', 'brand', 'model', 'fuel_type', 'status', 'year']);
+    }
 }

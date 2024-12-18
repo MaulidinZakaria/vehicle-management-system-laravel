@@ -16,7 +16,6 @@ return new class extends Migration
             $table->foreignId('booking_id')->constrained('booking_vehicles')->cascadeOnDelete();
             $table->foreignId('approver_id')->constrained('users')->cascadeOnDelete();
             $table->integer('approver_level');
-            $table->text('comment')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected']);
             $table->timestamps();
         });

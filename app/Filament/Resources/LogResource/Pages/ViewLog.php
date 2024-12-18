@@ -4,10 +4,10 @@ namespace App\Filament\Resources\LogResource\Pages;
 
 use App\Filament\Resources\LogResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ListRecords;
+use Filament\Resources\Pages\EditRecord;
+use Filament\Resources\Pages\ViewRecord;
 
-class ListLogs extends ListRecords
+class ViewLog extends ViewRecord
 {
     protected static string $resource = LogResource::class;
-
 }

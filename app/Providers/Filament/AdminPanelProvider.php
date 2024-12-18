@@ -2,7 +2,9 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Resources\ApprovalHistoryResource;
 use App\Filament\Resources\ApprovalResource;
+use App\Filament\Resources\BookingHistoryResource;
 use App\Filament\Resources\BookingVehicleResource;
 use App\Filament\Resources\EmployeeResource;
 use App\Filament\Resources\FuelConsumptionResource;
@@ -31,6 +33,7 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Rmsramos\Activitylog\ActivitylogPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -39,9 +42,10 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
-            ->path('')
+            ->path(path: '')
             ->login()
-            ->brandName('Sekawan VMS')
+            ->brandLogo(asset('images/logo.webp'))
+            ->brandLogoHeight('3rem')
             ->sidebarCollapsibleOnDesktop()
             ->spa()
             ->favicon(asset('images/logo.png'))
@@ -54,10 +58,7 @@ class AdminPanelProvider extends PanelProvider
                 Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
-            ->widgets([
-                Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
-            ])
+            ->widgets([])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -71,15 +72,30 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+            ])->plugins([
+                ActivitylogPlugin::make()
+                    ->resource(LogResource::class)
+                    ->label('Log Aktivitas')
+                    ->pluralLabel('Log Aktivitas')
+                    ->navigationIcon('heroicon-o-square-3-stack-3d')
+                    ->navigationGroup('Log Aktivitas')
             ])->navigation(function (NavigationBuilder $builder): NavigationBuilder {
                 return $builder->items([
                     ...Dashboard::getNavigationItems(),
 
                 ])->groups([
-                    NavigationGroup::make('Kelola Pemesanan')->items([
-                        ...BookingVehicleResource::getNavigationItems(),
-                        ...ApprovalResource::getNavigationItems(),
-                    ]),
+                    NavigationGroup::make(Auth::user()?->level === 'admin' ? 'Kelola Pemesanan' : 'Kelola Persetujuan')->items(
+                        array_merge(
+                            Auth::user()?->level === 'admin'
+                                ? BookingVehicleResource::getNavigationItems()
+                                : [],
+                            Auth::user()?->level === 'admin'
+                                ? BookingHistoryResource::getNavigationItems()
+                                : [],
+                            ApprovalResource::getNavigationItems(),
+                            ApprovalHistoryResource::getNavigationItems()
+                        )
+                    ),
                     ...(
                         Auth::user()?->level === 'admin'
                         ? [
@@ -102,11 +118,16 @@ class AdminPanelProvider extends PanelProvider
                         ]
                         : []
                     ),
-                    NavigationGroup::make('Log Aktivitas')->items([
-                        ...LogResource::getNavigationItems(),
-                    ]),
+                    ...(
+                        Auth::user()?->level === 'admin'
+                        ? [
+                            NavigationGroup::make('Log Aktivitas')->items([
+                                ...LogResource::getNavigationItems(),
+                            ])
+                        ]
+                        : []
+                    ),
                 ]);
             });
-        // ->spa();
     }
 }

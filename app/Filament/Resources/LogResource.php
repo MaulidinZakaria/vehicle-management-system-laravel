@@ -12,57 +12,38 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
+use Rmsramos\Activitylog\Resources\ActivitylogResource;
 
-class LogResource extends Resource
+class LogResource extends ActivitylogResource
 {
-    protected static ?string $model = Log::class;
-
-    protected static ?string $navigationIcon = 'heroicon-o-square-3-stack-3d';
-    protected static ?string $navigationLabel = 'Log Aktivitas';
-    protected static ?string $slug = 'log-aktivitas';
-    protected static ?string $label = 'Log Aktivitas';
-    protected static ?int $navigationSort = 9;
-
-    public static function form(Form $form): Form
+    public static function canViewAny(): bool
     {
-        return $form
-            ->schema([
-                //
-            ]);
+        return Auth::user()?->level === 'admin';
     }
-
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                //
+                static::getLogNameColumnCompoment(),
+                static::getEventColumnCompoment()->label('Aksi'),
+                static::getSubjectTypeColumnCompoment(),
+                static::getCauserNameColumnCompoment(),
+                static::getPropertiesColumnCompoment(),
+                static::getCreatedAtColumnCompoment()->label('Waktu Dibuat'),
             ])
+            ->defaultSort(config('filament-activitylog.resources.default_sort_column', 'created_at'), config('filament-activitylog.resources.default_sort_direction', 'asc'))
             ->filters([
-                //
-            ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                static::getDateFilterComponent(),
+                static::getEventFilterCompoment(),
             ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListLogs::route('/'),
-            'create' => Pages\CreateLog::route('/create'),
-            'edit' => Pages\EditLog::route('/{record}/edit'),
+            'view' => Pages\ViewLog::route('/{record}'),
         ];
     }
 }
