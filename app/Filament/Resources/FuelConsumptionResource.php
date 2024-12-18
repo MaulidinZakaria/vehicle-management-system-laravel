@@ -29,6 +29,11 @@ class FuelConsumptionResource extends Resource
     protected static ?string $label = 'Konsumsi BBM';
     protected static ?int $navigationSort = 4;
 
+    public static function canViewAny(): bool
+    {
+        return Auth::user()?->level === 'admin';
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -63,7 +68,7 @@ class FuelConsumptionResource extends Resource
         return $table
             ->defaultSort('created_at', 'desc')
             ->columns([
-            TextColumn::make('vehicle.model')
+                TextColumn::make('vehicle.model')
                     ->label('Kendaraan')
                     ->description(fn($record) => $record->vehicle ? $record->vehicle->license_plate : '-'),
                 TextColumn::make('date')

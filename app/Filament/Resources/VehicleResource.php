@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\VehicleResource\Pages;
 use App\Filament\Resources\VehicleResource\RelationManagers;
+use App\Models\User;
 use App\Models\Vehicle;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
@@ -28,7 +29,12 @@ class VehicleResource extends Resource
     protected static ?string $slug = 'kendaraan';
     protected static ?string $label = 'Kendaraan';
     protected static ?int $navigationSort = 3;
-    
+
+    public static function canViewAny(): bool
+    {
+        return Auth::user()?->level === 'admin';
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -58,7 +64,7 @@ class VehicleResource extends Resource
                 Select::make('vehicle_type')
                     ->label('Jenis Kendaraan')
                     ->options([
-                        'passenger' => 'Orang',
+                        'passenger' => 'Penumpang',
                         'cargo' => 'Barang',
                     ])
                     ->required(),
@@ -89,7 +95,7 @@ class VehicleResource extends Resource
                         'gasoline' => 'Bensin',
                         'diesel' => 'Solar',
                         'electric' => 'Listrik',
-                        'hybrid' => 'Hibrida',
+                        'hybrid' => 'Hybrid',
                     ])
                     ->required(),
                 Select::make('status')

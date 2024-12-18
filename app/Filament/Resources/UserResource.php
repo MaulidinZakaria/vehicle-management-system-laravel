@@ -30,6 +30,11 @@ class UserResource extends Resource
     protected static ?string $label = 'Pengguna';
     protected static ?int $navigationSort = 7;
 
+    public static function canViewAny(): bool
+    {
+        return Auth::user()?->level === 'admin';
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -38,7 +43,13 @@ class UserResource extends Resource
                     ->label('Nama')
                     ->required()
                     ->maxLength(100)
+                    ->columnSpanFull()
                     ->placeholder('Masukkan Nama'),
+                TextInput::make('username')
+                    ->label('Username')
+                    ->required()
+                    ->maxLength(100)
+                    ->placeholder('Masukkan Username'),
                 TextInput::make('email')
                     ->label('Email')
                     ->required()
@@ -110,6 +121,9 @@ class UserResource extends Resource
                 TextColumn::make('name')
                     ->searchable()
                     ->label('Nama'),
+                TextColumn::make('username')
+                    ->searchable()
+                    ->label('Username'),
                 TextColumn::make('email')
                     ->searchable()
                     ->label('Email'),

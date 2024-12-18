@@ -26,7 +26,11 @@ class RentalCompanyResource extends Resource
     protected static ?string $slug = 'perusahaan-rental';
     protected static ?string $label = 'Perusahaan Rental';
     protected static ?int $navigationSort = 6;
-
+    
+    public static function canViewAny(): bool
+    {
+        return Auth::user()?->level === 'admin';
+    }
     public static function form(Form $form): Form
     {
         return $form

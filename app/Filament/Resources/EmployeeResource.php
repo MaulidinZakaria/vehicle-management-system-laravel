@@ -30,6 +30,11 @@ class EmployeeResource extends Resource
     protected static ?string $label = 'Pegawai';
     protected static ?int $navigationSort = 8;
 
+    public static function canViewAny(): bool
+    {
+        return Auth::user()?->level === 'admin';
+    }
+
     public static function form(Form $form): Form
     {
         return $form
