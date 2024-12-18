@@ -22,6 +22,8 @@ class DatabaseSeeder extends Seeder
             VehicleSeeder::class,
             VehicleMaintenanceSeeder::class,
             FuelConsumptionSeeder::class,
+            BookingVehicleSeeder::class,
+            ApprovalSeeder::class,
         ]);
     }
 }

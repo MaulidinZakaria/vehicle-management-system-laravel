@@ -20,7 +20,7 @@ class EmployeeSeeder extends Seeder
         $officeTypes = ['pusat', 'cabang'];
 
         // Membuat 10 data employee
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < 15; $i++) {
             DB::table('employees')->insert([
                 'name' => $faker->name,
                 'email' => $faker->unique()->safeEmail,
