@@ -84,18 +84,19 @@ class AdminPanelProvider extends PanelProvider
                     ...Dashboard::getNavigationItems(),
 
                 ])->groups([
-                    NavigationGroup::make(Auth::user()?->level === 'admin' ? 'Kelola Pemesanan' : 'Kelola Persetujuan')->items(
-                        array_merge(
-                            Auth::user()?->level === 'admin'
-                                ? BookingVehicleResource::getNavigationItems()
-                                : [],
-                            Auth::user()?->level === 'admin'
-                                ? BookingHistoryResource::getNavigationItems()
-                                : [],
-                            ApprovalResource::getNavigationItems(),
-                            ApprovalHistoryResource::getNavigationItems()
-                        )
-                    ),
+                    NavigationGroup::make(Auth::user()?->level === 'admin' ? 'Kelola Pemesanan' : 'Kelola Persetujuan')
+                        ->items(
+                            array_merge(
+                                Auth::user()?->level === 'admin'
+                                    ? BookingVehicleResource::getNavigationItems()
+                                    : [],
+                                Auth::user()?->level === 'admin'
+                                    ? BookingHistoryResource::getNavigationItems()
+                                    : [],
+                                ApprovalResource::getNavigationItems(),
+                                ApprovalHistoryResource::getNavigationItems()
+                            )
+                        ),
                     ...(
                         Auth::user()?->level === 'admin'
                         ? [
