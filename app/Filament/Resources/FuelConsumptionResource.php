@@ -66,7 +66,7 @@ class FuelConsumptionResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->defaultSort('created_at', 'desc')
+            ->defaultSort('date', 'desc')
             ->columns([
                 TextColumn::make('vehicle.model')
                     ->label('Kendaraan')
