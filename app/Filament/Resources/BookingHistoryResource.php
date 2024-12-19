@@ -11,6 +11,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\ExportAction as ActionsExportAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -19,6 +20,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\Log;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use pxlrbt\FilamentExcel\Columns\Column;
@@ -68,19 +70,13 @@ class BookingHistoryResource extends Resource
                     ->label('Status')
                     ->badge()
                     ->color(fn($state) => match ($state) {
-                        'complete' => 'success',
-                        'approved' => 'info',
+                        'approved' => 'success',
                         default => 'info',
                     }),
             ])->modifyQueryUsing(function (Builder $query) {
-                return $query->whereIn('status', ['approved', 'complete']);
+                return $query->where('status', 'approved');
             })
             ->filters([
-                SelectFilter::make('status')
-                    ->options([
-                        'approved' => 'Disetujui',
-                        'complete' => 'Selesai',
-                    ]),
                 Filter::make('created_at')
                     ->form([
                         DatePicker::make('created_from')->label('Tanggal Awal'),
@@ -99,23 +95,43 @@ class BookingHistoryResource extends Resource
                     })
             ])
             ->headerActions([
-                ExportAction::make()->label('Export')->exports([
-                    ExcelExport::make()->withColumns([
-                        Column::make('id')->heading('Booking ID'),
-                        Column::make('created_at')->heading('Tanggal Pemesanan'),
-                        Column::make('vehicle.model')->heading('Model Kendaraan'),
-                        Column::make('vehicle.vehicle_type')->heading('Jenis Kendaraan'),
-                        Column::make('vehicle.license_plate')->heading('Nomor Polisi'),
-                        Column::make('vehicle.owner_type')->heading('Pemilik Kendaraan'),
-                        Column::make('request.name')->heading('Nama Pemesan'),
-                        Column::make('request.office_type')->heading('Asal Perusahaan'),
-                        Column::make('status')->heading('Status Pemesanan'),
-                        Column::make('driver.name')->heading('Pengemudi'),
-                        Column::make('start_date')->heading('Tanggal Penggunaan'),
-                        Column::make('end_date')->heading('Tanggal Pengembalian'),
-                        Column::make('purpose')->heading('Tujuan')
+                ExportAction::make()->label('Export')
+                    ->exports([
+                        ExcelExport::make()
+                            ->modifyQueryUsing(function (Builder $query) {
+
+                                $filters = request()->input('components.0.snapshot');
+
+                                if ($filters) {
+                                    $decodedFilters = json_decode($filters, true);
+                                    $tableFilters = $decodedFilters['data']['tableFilters'] ?? [];
+                                    $tableFilters = $tableFilters[0]['created_at'][0];
+
+                                    if ($tableFilters['created_from']) {
+                                        $query->whereDate('created_at', '>=', $tableFilters['created_from']);
+                                    } else if($tableFilters['created_until']) {
+                                        $query->whereDate('created_at', '<=', $tableFilters['created_until']);
+                                    }
+                                }
+
+                                return $query->where('status', 'approved');
+                            })
+                            ->withColumns([
+                                Column::make('id')->heading('Booking ID'),
+                                Column::make('created_at')->heading('Tanggal Pemesanan'),
+                                Column::make('vehicle.model')->heading('Model Kendaraan'),
+                                Column::make('vehicle.vehicle_type')->heading('Jenis Kendaraan'),
+                                Column::make('vehicle.license_plate')->heading('Nomor Polisi'),
+                                Column::make('vehicle.owner_type')->heading('Pemilik Kendaraan'),
+                                Column::make('request.name')->heading('Nama Pemesan'),
+                                Column::make('request.office_type')->heading('Asal Perusahaan'),
+                                Column::make('status')->heading('Status Pemesanan'),
+                                Column::make('driver.name')->heading('Pengemudi'),
+                                Column::make('start_date')->heading('Tanggal Penggunaan'),
+                                Column::make('end_date')->heading('Tanggal Pengembalian'),
+                                Column::make('purpose')->heading('Tujuan')
+                            ]),
                     ]),
-                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

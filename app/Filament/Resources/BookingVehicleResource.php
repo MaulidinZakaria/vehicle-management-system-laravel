@@ -349,7 +349,6 @@ class BookingVehicleResource extends Resource
                     ->label('Status')
                     ->badge()
                     ->color(fn($state) => match ($state) {
-                        'complete' => 'success',
                         'rejected' => 'danger',
                         'approved' => 'success',
                         'pending' => 'info',
