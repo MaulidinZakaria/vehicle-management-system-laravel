@@ -32,6 +32,10 @@ Berikut adalah daftar username dan password default untuk mengakses aplikasi:
 
 ---
 
+### Link Data Pendukung 
+- [Physical Data Model](https://drive.google.com/file/d/1Zrbhajg896DuRRc992fuBMB-ncQs62hS/view?usp=sharing)
+- [Activity Diagram](https://drive.google.com/file/d/19B1RVxxeIlZ9aaAkM6tm_3vBMFaNPHao/view?usp=sharing)
+
 ## Fitur Utama
 
 ### **Dashboard**
